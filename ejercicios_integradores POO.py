@@ -3,6 +3,8 @@
 2. Escribir una función que calcule el mínimo común múltiplo entre dos números
 '''
 '''
+import math
+
 def maximo_comun_divisor(a, b): 
     # Uso del algoritmo de Euclides
     mcd = 0
@@ -16,6 +18,9 @@ def maximo_comun_divisor(a, b):
 
 def minimo_comun_multiplo(a, b):
     return (a*b)//maximo_comun_divisor(a, b)
+
+def mcd(n, m):
+    return math.gcd(n, m)
       
 a = int(input("Ingrese el primer número: "))
 b = int(input("Ingrese el segundo número: "))
@@ -33,8 +38,8 @@ devuelva una tupla con la palabra más repetida y su frecuencia.
 def frecuencia(cad):
    palabras = cad.split()
    diccionario = {}
-   for n in range(len(palabras)):
-     diccionario[palabras[n]] = cad.count(palabras[n])
+   for n in palabras:
+     diccionario[n] = cad.count(n)
    return diccionario
 
 def mas_repetida(dic):
@@ -43,7 +48,9 @@ def mas_repetida(dic):
         tupla = (key,value)
   return tupla
 
-cadena = input("Ingrese una cadena de caracteres: ")
+#cadena = input("Ingrese una cadena de caracteres: ")
+#cadena = 'Como quieres que te quiera si el que quiero que me quiera no me quiere como quiero que me quiera'
+cadena = "uno dos cuatro tres cuatro dos tres uno seis cinco dos"
 print("Diccionario:",frecuencia(cadena))
 print("Tupla:",mas_repetida(frecuencia(cadena)))
 '''
@@ -55,19 +62,30 @@ del usuario y lo devuelva, iterando mientras el valor no sea correcto. Intente r
 ejercicio tanto de manera iterativa como recursiva.
 '''
 '''
-def get_int():
-  entero = False
-  n = input("Ingrese un número entero: ")
-  while (not entero):
-   try:
-     n = int(n)
-     entero = True
-   except:
-     print("ValueError: El valor ingresado no es válido para su conversión a entero")
-     n = input("Ingrese un entero nuevamente: ")
-  return n
+def get_int_iterativo():
+  ingreso_correcto  = False
+  while not (ingreso_correcto):
+    numero = input("Ingrese un número entero: ")
+    try:
+      numero = int(numero)
+    except:
+      print("ValueError: El valor ingresado no es válido para su conversión a entero. Intente nuevamente.")
+    else:
+      ingreso_correcto = True
+  return numero
 
-print("Número entero ingresado:",get_int())
+def get_int_recursivo():
+    user_input = input('Por favor ingrese un número: ')
+    try:
+        value = int(user_input)
+    except ValueError:
+        print('No es un entero válido. Intente nuevamente!')
+        return get_int_recursivo()
+    else:
+        return value
+
+#print(f"Número ingresado: {get_int_iterativo()}")
+print(f"Número ingresado: {get_int_recursivo()}")
 '''
 '''
 6. Crear una clase llamada Persona. Sus atributos son: nombre, edad y DNI. Construya los
@@ -78,7 +96,7 @@ datos.
 • mostrar(): Muestra los datos de la persona.
 • es_mayor_de_edad(): Devuelve un valor lógico indicando si es mayor de edad.
 '''
-'''
+
 class ErrorNombre(Exception):
     #Excepción lanzada se ingreso un nombre no válido
     def __init__(self, message='Nombre de persona no válido') :
@@ -95,72 +113,77 @@ class ErrorEdad(Exception):
         super().__init__(message)
 
 class Persona:
-    def __init__(self,nombre="",edad=None,dni=None):
-        self.nombre = nombre 
-        self.edad = edad
-        self.dni = dni
+    def __init__(self,nombre="",edad=0,dni=0):
+        self.__nombre = nombre 
+        self.__edad = edad
+        self.__dni = dni
 
     # setter y getter: atributo nombre
+    @property
+    def nombre(self):
+        return self.__nombre
 
-    def set_nombre(self,nombre):
+    @nombre.setter
+    def nombre(self, nuevo_nombre):
         try:
-            if (any(str.isdigit() for str in nombre)): # any devuelve true si alguno de los elementos del  
-                raise ErrorNombre()                    # iterable que se da como argumento es True
-            self.nombre = nombre
+            if (any(str.isdigit() for str in nuevo_nombre)): # any devuelve true si alguno de los  
+                raise ErrorNombre()     #elementos del iterable es True
+            self.__nombre = nuevo_nombre
         except ErrorNombre as en:
             print(f'Error:{en}')      
 
-    def get_nombre(self):
-        print(f'Nombre: {self.nombre}')
-
     # setter y getter: atributo edad
+    @property
+    def edad(self):
+        return self.__edad
     
-    def set_edad(self, edad):
+    @edad.setter
+    def edad(self, nueva_edad):
         try:
-            if (not int(edad) == edad): # si no es una variable entera
-                raise ErrorEdad()                  
-            self.edad = edad
+            nueva_edad = int(nueva_edad)
+            if (nueva_edad < 0): # si no es una numero negativo
+                raise ErrorEdad()        
+            self.__edad = nueva_edad
+        except ValueError:       #si no es un valor entero
+            print("Error: Edad incorrecta") 
         except ErrorEdad as ee:
-            print(f'Error:{ee}')      
-        
-    def get_edad(self):
-        print(f'Edad: {self.edad}')
+            print(f'Error:{ee}')    
+
 
     # setter y getter: atributo dni
+    @property
+    def dni(self):
+        return self.__dni
     
-    def set_dni(self, dni):
+    @dni.setter
+    def dni(self, nuevo_dni):
         try:
-            if (not int(dni) == dni): # si no es una variable entera
-                raise ErrorDni()
-            self.dni = dni
+            nuevo_dni = int(nuevo_dni)
+            if (nuevo_dni < 0 or nuevo_dni > 8): # si no es una numero negativo
+                raise ErrorEdad()        
+            self.__edad = nuevo_dni
+        except ValueError:      #si no es un valor entero
+            print("Error: Edad incorrecta") 
         except ErrorDni as ed:
             print(f'Error:{ed}')      
-        
-    def get_dni(self):
-        print(f'DNI: {self.dni}')
-    
+
     # Métodos de la clase Persona
         
     def mostrar(self):
-        print(f'Persona: {self.nombre} con {self.edad} años y DNI: {self.dni}')
+        print(f'Persona: {self.__nombre} con {self.__edad} años y DNI: {self.__dni}')
 
     def es_mayor_de_edad(self):
-        if (self.edad>=18):
+        if (self.__edad>=18):
             return "True"
         else:
             return "False"
 
-persona1 = Persona() # Creamos un objeto o instancia de la clase Persona
-persona1.set_nombre("maria elena g4mez") 
-persona1.get_nombre() 
-#persona1.set_edad(58.5) 
-#persona1.get_edad()
-#persona1.set_edad(45) 
-#persona1.get_edad()
-#persona1.set_dni(35666777) 
-#persona1.get_dni()
-#persona1.es_mayor_de_edad()
-'''
+#persona1 = Persona() # Creamos un objeto o instancia de la clase Persona
+#persona1.mostrar()
+#juan = Persona("Alejandro", 39, "29950013")
+#juan.mostrar()
+#juan.edad = -5
+#juan.mostrar()
 
 '''
 7. Crea una clase llamada Cuenta que tendrá los siguientes atributos: titular (que es una
@@ -175,6 +198,7 @@ negativa, no se hará nada.
 • retirar(cantidad): se retira una cantidad a la cuenta. La cuenta puede estar en números
 rojos.
 '''
+
 class ErrorNombreTitular(Exception):
     #Excepción lanzada se ingreso un nombre no válido para el titular de la cuenta
     def __init__(self, message='Nombre de persona no válido') :
@@ -182,49 +206,46 @@ class ErrorNombreTitular(Exception):
 
 class Cuenta: #Superclase
     def __init__(self,titular="",cantidad=0):
-        self.titular=titular 
-        self.cantidad=cantidad
+        self.__titular = titular 
+        self.__cantidad = cantidad
 
     # setter y getter: atributo titular
+    @property
+    def titular(self):
+        return self.__titular
 
-    def set_titular(self,titular):
-        try:
-            if (any(str.isdigit() for str in titular)): # Si el nombre tiene un caracter no valido
-                raise ErrorNombreTitular()                    
-            self.titular = titular
-        except ErrorNombreTitular as ent:
-            print(f'Error:{ent}')      
-
-    def get_titular(self):
-        print(f'Titular: {self.titular}')
+    @titular.setter
+    def titular(self, titular):
+        self.__titular = titular     
 
     # getter: atributo cantidad
 
-    def get_cantidad(self):
-        print(f'Cantidad: {self.cantidad}')
+    @property
+    def cantidad(self):
+        return self.__cantidad
 
     # Metodos de la clase Cuenta
 
     def ingresar(self,cantidad):
-        if (cantidad >= 0):
-           self.cantidad = self.cantidad + cantidad
-           print(f'Deposito (${self.cantidad}) realizado con éxito')
+        if (cantidad > 0):
+           self.__cantidad = self.__cantidad + cantidad
+           print(f'Deposito (${cantidad}) realizado con éxito')
 
     def retirar(self,cantidad):
-        self.cantidad = self.cantidad - cantidad
+        self.__cantidad = self.__cantidad - cantidad
         print(f'Extracción (${cantidad}) realizada con éxito')
 
     def mostrar(self):
-        print(f'Titular: {self.titular}\t\tCantidad: $ {self.cantidad}')
+        print("Cuenta --> Titular:")
+        self.__titular.mostrar()
+        print(f'Cantidad: $ {self.__cantidad}')
 
 print("----------- Clase: Cuenta -----------")
-cuenta1 = Cuenta("José") 
-cuenta1.set_titular("José Rodrigue6z") 
-#cuenta1.get_titular() 
-#cuenta1.get_cantidad()
-cuenta1.ingresar(480) 
+titular = Persona("Alejandro", 39, "29950013")
+cuenta1 = Cuenta(titular,500) 
+cuenta1.ingresar(100) 
 cuenta1.mostrar()
-cuenta1.retirar(600) 
+cuenta1.retirar(50) 
 cuenta1.mostrar()
 
 
@@ -241,6 +262,7 @@ mayor de edad pero menor de 25 años y falso en caso contrario.
 • Además, la retirada de dinero sólo se podrá hacer si el titular es válido.
 • El método mostrar() debe devolver el mensaje de “Cuenta Joven” y la bonificación de la
 cuenta.
+'''
 '''
 class ErrorBonificacion(Exception):
     #Excepción lanzada se ingreso una edad no válida
@@ -312,3 +334,4 @@ cuentaJoven1 = CuentaJoven("Mario",500,50,18)
 cuentaJoven1.mostrar()
 cuentaJoven1.retirar(600) 
 cuentaJoven1.mostrar()
+'''
