@@ -96,7 +96,6 @@ datos.
 • mostrar(): Muestra los datos de la persona.
 • es_mayor_de_edad(): Devuelve un valor lógico indicando si es mayor de edad.
 '''
-
 class ErrorNombre(Exception):
     #Excepción lanzada se ingreso un nombre no válido
     def __init__(self, message='Nombre de persona no válido') :
@@ -161,7 +160,7 @@ class Persona:
             nuevo_dni = int(nuevo_dni)
             if (nuevo_dni < 0 or nuevo_dni > 8): # si no es una numero negativo
                 raise ErrorEdad()        
-            self.__edad = nuevo_dni
+            self.__dni= nuevo_dni
         except ValueError:      #si no es un valor entero
             print("Error: Edad incorrecta") 
         except ErrorDni as ed:
@@ -170,10 +169,10 @@ class Persona:
     # Métodos de la clase Persona
         
     def mostrar(self):
-        print(f'Persona: {self.__nombre} con {self.__edad} años y DNI: {self.__dni}')
+        return f'Persona:{self.nombre}, edad:{self.edad} años, DNI:{self.dni}'
 
     def es_mayor_de_edad(self):
-        if (self.__edad>=18):
+        if (self.edad>=18):
             return "True"
         else:
             return "False"
@@ -198,7 +197,6 @@ negativa, no se hará nada.
 • retirar(cantidad): se retira una cantidad a la cuenta. La cuenta puede estar en números
 rojos.
 '''
-
 class ErrorNombreTitular(Exception):
     #Excepción lanzada se ingreso un nombre no válido para el titular de la cuenta
     def __init__(self, message='Nombre de persona no válido') :
@@ -206,7 +204,7 @@ class ErrorNombreTitular(Exception):
 
 class Cuenta: #Superclase
     def __init__(self,titular="",cantidad=0):
-        self.__titular = titular 
+        self.titular = titular 
         self.__cantidad = cantidad
 
     # setter y getter: atributo titular
@@ -236,18 +234,15 @@ class Cuenta: #Superclase
         print(f'Extracción (${cantidad}) realizada con éxito')
 
     def mostrar(self):
-        print("Cuenta --> Titular:")
-        self.__titular.mostrar()
-        print(f'Cantidad: $ {self.__cantidad}')
+        print(f'Titular de la Cuenta -->{self.titular.mostrar()} Cantidad:${self.cantidad}')
 
-print("----------- Clase: Cuenta -----------")
-titular = Persona("Alejandro", 39, "29950013")
-cuenta1 = Cuenta(titular,500) 
-cuenta1.ingresar(100) 
-cuenta1.mostrar()
-cuenta1.retirar(50) 
-cuenta1.mostrar()
-
+#titular = Persona("Alejandro", 39, "29950013")
+#print(titular.mostrar())
+#cuenta1 = Cuenta(titular,500) 
+#cuenta1.ingresar(100) 
+#cuenta1.mostrar()
+#cuenta1.retirar(50) 
+#cuenta1.mostrar()
 
 '''
 8. Vamos a definir ahora una “Cuenta Joven”, para ello vamos a crear una nueva clase
@@ -263,57 +258,48 @@ mayor de edad pero menor de 25 años y falso en caso contrario.
 • El método mostrar() debe devolver el mensaje de “Cuenta Joven” y la bonificación de la
 cuenta.
 '''
-'''
+
 class ErrorBonificacion(Exception):
     #Excepción lanzada se ingreso una edad no válida
     def __init__(self, message='Bonificacion no válida') :
         super().__init__(message)
 
-class ErrorEdadCJ(Exception):
+class ErrorTitularNoValido(Exception):
     #Excepción lanzada se ingreso una edad no válida
-    def __init__(self, message='Edad de persona no válida') :
+    def __init__(self, message='El titular no posee una edad válida para poseer una Cuenta Jover') :
         super().__init__(message)
 
 class CuentaJoven(Cuenta):
-    def __init__(self, titular, cantidad, bonificacion, edad):
-        Cuenta.__init__(self, titular, cantidad) # Atributos heredados
-        self.bonificacion = bonificacion # Atributo propio
-        self.edad = edad
-        self.agregarBonif(bonificacion)
-
+    def __init__(self, titular, cantidad=0, bonificacion=0):
+        super.__init__(titular, cantidad) # Atributos heredados
+        self.__bonificacion = bonificacion # Atributo propio
+        #self.agregarBonif()
 
     # setter y getter: atributo bonificacion
+    @property
+    def bonificacion(self):
+        return self.__bonificacion
 
-    def set_bonificacion(self,bonificacion):
+    @bonificacion.setter
+    def bonificacion(self, bonificacion):
         try:
-            if (not float(bonificacion) == bonificacion): # si no es una variable numerica
-                raise ErrorBonificacion()                  
-            self.bonificacion = bonificacion
-            self.agregarBonif(bonificacion)
+            if self.es_titular_valido(): # si no es una variable numerica real
+                raise ErrorTitularNoValido()    
+            if (bonificacion < 0): # si no es una numero negativo
+                raise ErrorBonificacion()       
+            self.__bonificacion = float(bonificacion)
+            #self.agregarBonif(bonificacion)
+        except ValueError:      #si no es un valor entero
+            print("Error: Bonificación incorrecta") 
         except ErrorBonificacion as eb:
-            print(f'Error:{eb}')      
-
-    def get_bonificacion(self):
-        print(f'Bonificacion: %{self.bonificacion}')
-
-    # setter y getter: atributo edad
-
-    def set_edad(self, edad):
-        try:
-            if (not int(edad) == edad): # si no es una variable entera
-                raise ErrorEdadCJ()                  
-            self.edad = edad
-        except ErrorEdadCJ as ee:
-            print(f'Error:{ee}')      
-        
-    def get_edad(self):
-        print(f'Edad: {self.edad}')
-
+            print(f'Error:{eb}') 
+        except ErrorTitularNoValido as etnv:
+            print(f'Error:{etnv}')        
 
     # Metodos de la clase CuentaJoven
-    def agregarBonif(self,bonificacion):
-        if (bonificacion >= 0):
-           self.cantidad = self.cantidad + self.cantidad*bonificacion*0.01
+    def agregarBonif(self):
+        if (self.bonificacion >= 0):
+           self.cantidad = self.cantidad + self.cantidad*self.bonificacion*0.01
 
     def es_titular_valido(self):
         return (self.edad >=18 and self.edad <25)
@@ -327,11 +313,12 @@ class CuentaJoven(Cuenta):
 
     def mostrar(self):
         print("------------ Cuenta Joven ------------")
-        print(f'Titular: {self.titular}\t\tCantidad: ${self.cantidad}\t\tBonificación: %{self.bonificacion}')
+        print(f"Titular --> {self.titular.mostrar()}, Cantidad: {self.cantidad}, Bonificación: {self.bonificacion}%")
 
 
-cuentaJoven1 = CuentaJoven("Mario",500,50,18) 
+persona = Persona("Mario",17,40623895)
+print(persona.mostrar())
+cuentaJoven1 = CuentaJoven(persona,500,20) 
 cuentaJoven1.mostrar()
-cuentaJoven1.retirar(600) 
-cuentaJoven1.mostrar()
-'''
+#cuentaJoven1.retirar(600) 
+#cuentaJoven1.mostrar()
